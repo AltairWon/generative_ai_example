@@ -1,0 +1,8 @@
+
+7
+Pipfile,1/5/15af4b3d30054104e85f65a444b1db188c5deefb
+4
+.env,3/c/3c84dcdc6bbe3d7817c49dcdc327b926fea1808a
+:
+
+example.py,0/5/05e0372f8165776bed0a53b989eaffd9e3139848
