@@ -13,7 +13,7 @@ creds = Credentials(api_key, api_endpoint=api_url)
 
 def generate_response(prompt):
     user_params = GenerateParams(decoding_method="sample", max_new_tokens=100, temperature=1)
-    completions = Model("ibm/falcon-40b-8lang-instruct", params=user_params, credentials=creds)
+    completions = Model("meta-llama/llama-2-70b-chat", params=user_params, credentials=creds)
 
     user_response = completions.generate([prompt])
     user_gen = user_response[0].generated_text
