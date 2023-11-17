@@ -1,2 +1,2 @@
-# generative_ai_example
-This is the working demo for generative ai
+# GenAI Example with using different LLM and sources
+This is the working demo for generative AI
