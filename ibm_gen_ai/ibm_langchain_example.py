@@ -5,7 +5,6 @@ from genai.schemas import GenerateParams
 from genai.credentials import Credentials
 import streamlit as st
 from streamlit_chat import message
-import json
 
 load_dotenv()
 api_key = os.getenv("GENAI_KEY", None) 
@@ -13,8 +12,8 @@ api_url = os.getenv("GENAI_API", None)
 creds = Credentials(api_key, api_endpoint=api_url)
 
 def generate_response(prompt):
-    user_params = GenerateParams(decoding_method="greedy")
-    langchain_model = LangChainInterface(model="google/flan-t5-xxl", params=user_params, credentials=creds)
+    user_params = GenerateParams(decoding_method="sample", max_new_tokens=100, temperature=1)
+    langchain_model = LangChainInterface(model="meta-llama/llama-2-70b-chat", params=user_params, credentials=creds)
 
     user_response = langchain_model(prompt)
     # user_gen = user_response[0].generated_text
