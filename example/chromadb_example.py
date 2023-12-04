@@ -9,7 +9,7 @@ from genai.schemas import GenerateParams
 from genai.credentials import Credentials
 
 load_dotenv()
-api_key = os.getenv("GENAI_KEY", None) 
+api_key = os.getenv("GENAI_KEY", None)
 api_url = os.getenv("GENAI_API", None)
 creds = Credentials(api_key, api_endpoint=api_url)
 user_params = GenerateParams(decoding_method="sample", max_new_tokens=100, temperature=1)
