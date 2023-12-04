@@ -58,4 +58,13 @@ So the final answer is: No
 
 example_prompt = PromptTemplate(input_variables=["question", "answer"], template="Question: {question}\n{answer}")
 
-print(example_prompt.format(**examples[0]))
+# print(example_prompt.format(**examples[0]))
+
+prompt = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_prompt,
+    suffix="Question: {input}",
+    input_variables=["input"]
+)
+
+print(prompt.format(input="Who was the father of Mary Ball Washington?"))
