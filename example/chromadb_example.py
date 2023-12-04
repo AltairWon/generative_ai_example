@@ -25,8 +25,8 @@ filename = '/Users/whj121/Desktop/sample.xlsx'
 df = pd.read_excel(filename)
 df.sample(5)
 
-# model_ibm = LangChainInterface(model="meta-llama/llama-2-70b-chat", params=user_params, credentials=creds)
-model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS')
+model_ibm = LangChainInterface(model="meta-llama/llama-2-70b-chat", params=user_params, credentials=creds)
+#model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS')
 
 
 ids = []
@@ -43,7 +43,7 @@ for row in tqdm(df.iterrows()):
         "answer": answer
     }
     
-    embedding = model.encode(query, normalize_embeddings=True)
+    embedding = model_ibm.encode(query, normalize_embeddings=True)
     
     ids.append(str(index))
     metadatas.append(metadata)
@@ -66,7 +66,7 @@ for chunk_idx in tqdm(range(total_chunks)):
     answers.add(embeddings=chunk_embeddings, ids=chunk_ids, metadatas=chunk_metadatas)
     
 result = answers.query(
-    query_embeddings=model.encode("쿠폰 관리내용은 어디서 찾아야해?", normalize_embeddings=True).tolist(),
+    query_embeddings=model_ibm.encode("쿠폰 관리내용은 어디서 찾아야해?", normalize_embeddings=True).tolist(),
     n_results=3
 )
 
