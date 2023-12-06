@@ -7,7 +7,7 @@ import streamlit as st
 from streamlit_chat import message
 
 load_dotenv()
-api_key = os.getenv("GENAI_KEY", None) 
+api_key = os.getenv("GENAI_KEY", None)
 api_url = os.getenv("GENAI_API", None)
 creds = Credentials(api_key, api_endpoint=api_url)
 

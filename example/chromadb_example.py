@@ -1,73 +1,25 @@
-import chromadb
-import pandas as pd
-from tqdm import tqdm
-from sentence_transformers import SentenceTransformer
-import os
-from dotenv import load_dotenv
-from genai.extensions.langchain import LangChainInterface
-from genai.schemas import GenerateParams
-from genai.credentials import Credentials
+from langchain.document_loaders import TextLoader
+from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import Chroma
 
-load_dotenv()
-api_key = os.getenv("GENAI_KEY", None)
-api_url = os.getenv("GENAI_API", None)
-creds = Credentials(api_key, api_endpoint=api_url)
-user_params = GenerateParams(decoding_method="sample", max_new_tokens=100, temperature=1)
+# load the document and split it into chunks
+loader = TextLoader("../../modules/state_of_the_union.txt")
+documents = loader.load()
 
-client = chromadb.PersistentClient()
-client.delete_collection(name="sample_answers")
-answers = client.create_collection(
-    name="sample_answers"
-)
+# split it into chunks
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+docs = text_splitter.split_documents(documents)
 
-filename = '/Users/whj121/Desktop/sample.xlsx'
+# create the open-source embedding function
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
-df = pd.read_excel(filename)
-df.sample(5)
+# load it into Chroma
+db = Chroma.from_documents(docs, embedding_function)
 
-model_ibm = LangChainInterface(model="meta-llama/llama-2-70b-chat", params=user_params, credentials=creds)
-#model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS')
+# query it
+query = "What did the president say about Ketanji Brown Jackson"
+docs = db.similarity_search(query)
 
-
-ids = []
-metadatas = []
-embeddings = []
-
-for row in tqdm(df.iterrows()):
-    index = row[0]
-    query = row[1].users
-    answer = row[1].answer
-    
-    metadata = {
-        "query": query,
-        "answer": answer
-    }
-    
-    embedding = model_ibm.encode(query, normalize_embeddings=True)
-    
-    ids.append(str(index))
-    metadatas.append(metadata)
-    embeddings.append(embedding)
-    
-chunk_size = 1024  # 한 번에 처리할 chunk 크기 설정
-total_chunks = len(embeddings) // chunk_size + 1  # 전체 데이터를 chunk 단위로 나눈 횟수
-embeddings = [ e.tolist() for e in tqdm(embeddings)]  
-
-for chunk_idx in tqdm(range(total_chunks)):
-    start_idx = chunk_idx * chunk_size
-    end_idx = (chunk_idx + 1) * chunk_size
-    
-    # chunk 단위로 데이터 자르기
-    chunk_embeddings = embeddings[start_idx:end_idx]
-    chunk_ids = ids[start_idx:end_idx]
-    chunk_metadatas = metadatas[start_idx:end_idx]
-    
-    # chunk를 answers에 추가
-    answers.add(embeddings=chunk_embeddings, ids=chunk_ids, metadatas=chunk_metadatas)
-    
-result = answers.query(
-    query_embeddings=model_ibm.encode("쿠폰 관리내용은 어디서 찾아야해?", normalize_embeddings=True).tolist(),
-    n_results=3
-)
-
-print(result)
+# print results
+print(docs[0].page_content)
